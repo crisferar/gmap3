@@ -102,35 +102,6 @@
     }).join("&");
   }
 
-  // Auto-load google maps library if needed
-  when(function () {
-    var dfd = deferred(),
-      cbName = '__gmap3',
-      script;
-
-    $.holdReady(true);
-
-    ready(function () {
-      if (window.google && window.google.maps || loadOptions === false) {
-        dfd.resolve();
-      } else {
-        // callback function - resolving promise after maps successfully loaded
-        window[cbName] = function () {
-          delete window[cbName];
-          dfd.resolve();
-        };
-        script = document.createElement('script');
-        script.type = 'text/javascript';
-        script.src = 'https://maps.googleapis.com/maps/api/js?callback=' + cbName + (loadOptions ? '&' + (typeof loadOptions === 'string' ? loadOptions : serialize(loadOptions)) : '');
-        $("head").append(script);
-      }
-    });
-
-    return dfd;
-  }()).then(function () {
-    $.holdReady(false);
-  });
-
   /**
    * Instantiate only once a google service
    * @param {String} name
@@ -761,6 +732,35 @@
    */
   $.gmap3 = function (options) {
     loadOptions = options;
+
+    // Auto-load google maps library if needed
+    when(function () {
+      var dfd = deferred(),
+        cbName = '__gmap3',
+        script;
+
+      $.holdReady(true);
+
+      ready(function () {
+        if (window.google && window.google.maps || loadOptions === false) {
+          dfd.resolve();
+        } else {
+          // callback function - resolving promise after maps successfully loaded
+          window[cbName] = function () {
+            delete window[cbName];
+            dfd.resolve();
+          };
+          script = document.createElement('script');
+          script.type = 'text/javascript';
+          script.src = 'https://maps.googleapis.com/maps/api/js?callback=' + cbName + (loadOptions ? '&' + (typeof loadOptions === 'string' ? loadOptions : serialize(loadOptions)) : '');
+          $("head").append(script);
+        }
+      });
+
+      return dfd;
+    }()).then(function () {
+      $.holdReady(false);
+    });
   };
 
   /**
